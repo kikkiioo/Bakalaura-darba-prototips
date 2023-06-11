@@ -3,7 +3,7 @@ import random
 from PIL import *
 
 
-def get_points_from_image(image):
+def iegut_punktus(image):
     platums = image.width
     augstums = image.height
     jaunais_izmers = (platums // 3, augstums // 3)
@@ -29,73 +29,73 @@ def eiklida_attalums(punkts1, punkts2):
     return attalums
 
 
-def calculate_center(points):
-    n_dimensions = len(points[0])
+def aprekinat_centru(punkti):
+    dimensijas = len(punkti[0])
 
-    dimension_sum = []
-    for i in range(n_dimensions):
-        dimension_sum.append(0.0)
+    dimensiju_summa = []
+    for i in range(dimensijas):
+        dimensiju_summa.append(0.0)
 
-    for point in points:
-        for i in range(n_dimensions):
-            dimension_sum[i] += point[i]
+    for punkts in punkti:
+        for i in range(dimensijas):
+            dimensiju_summa[i] += punkts[i]
 
-    coordinates = []
-    for v in dimension_sum:
-        coordinates.append(v / len(points))
+    koordinatas = []
+    for j in dimensiju_summa:
+        koordinatas.append(j / len(punkti))
 
-    return coordinates
+    return koordinatas
 
 
-def assign_points_to_clusters(clusters, points):
-    clusters_points = []
-    for i in range(len(clusters)):
-        clusters_points.append([])
+def pieksirt_punktus_klasteriem(klasteri, punkti):
+    klasteru_punkti = []
+    for i in range(len(klasteri)):
+        klasteru_punkti.append([])
 
-    for point in points:
-        smallest_distance = float("inf")
+    for punkts in punkti:
+        min_distance = float("inf")
         index = 0
-        for i in range(len(clusters)):
-            distance = eiklida_attalums(point, clusters[i]["center"])
-            if distance < smallest_distance:
-                smallest_distance = distance
+        for i in range(len(klasteri)):
+            distance = eiklida_attalums(punkts, klasteri[i]["centrs"])
+            if distance < min_distance:
+                min_distance = distance
                 index = i
-        clusters_points[index].append(point)
+        klasteru_punkti[index].append(punkts)
 
-    return clusters_points
+    return klasteru_punkti
 
 
-def fit_points_to_clusters(punkti, n_clusters, min_diff):
+def ievietot_punktus(punkti, n_klasteri, min_diff):
     klasteri = []
-    nejausi_punkti = random.sample(punkti, n_clusters)
-    for point in nejausi_punkti:
-        klasteris = {"center": point, "points": [point]}
+    nejausi_punkti = random.sample(punkti, n_klasteri)
+    for punkts in nejausi_punkti:
+        klasteris = {"centrs": punkts, "punkti": [punkts]}
         klasteri.append(klasteris)
 
     while True:
-        clusters_points = assign_points_to_clusters(klasteri, punkti)
+        klasteru_punkti = pieksirt_punktus_klasteriem(klasteri, punkti)
         max_diff = 0
         for i in range(len(klasteri)):
-            if not clusters_points[i]:
+            if not klasteru_punkti[i]:
                 continue
-            old_center = klasteri[i]["center"]
-            new_center = calculate_center(clusters_points[i])
-            klasteri[i]["center"] = new_center
-            max_diff = max(max_diff, eiklida_attalums(old_center, new_center))
+            vecais_centrs = klasteri[i]["centrs"]
+            jaunais_centrs = aprekinat_centru(klasteru_punkti[i])
+            klasteri[i]["centrs"] = jaunais_centrs
+            max_diff = max(max_diff, eiklida_attalums(vecais_centrs, jaunais_centrs))
         if max_diff < min_diff:
             break
 
     return klasteri
 
 
-def get_colors_from_image(image_filename, n_colors):
-    punkti = get_points_from_image(image_filename)
-    clusters = fit_points_to_clusters(punkti, n_colors, min_diff=2)
-    clusters.sort(key=lambda c: len(c["points"]), reverse=True)
-    rgb_values = []
-    for c in clusters:
-        center = c["center"]
-        center_int = [int(val) for val in center]
-        center_tuple = tuple(center_int)
-        rgb_values.append(center_tuple)
-    return rgb_values
+def iegut_krasas_no_attela(attela_faila_nosaukums, n_krasas):
+    punkti = iegut_punktus(attela_faila_nosaukums)
+    klasteri = ievietot_punktus(punkti, n_krasas, min_diff=2)
+    klasteri.sort(key=lambda c: len(c["punkti"]), reverse=True)
+    rgb_vertibas = []
+    for c in klasteri:
+        centrs = c["centrs"]
+        centrs_int = [int(val) for val in centrs]
+        centrs_masivs = tuple(centrs_int)
+        rgb_vertibas.append(centrs_masivs)
+    return rgb_vertibas

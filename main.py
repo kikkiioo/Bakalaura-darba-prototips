@@ -24,7 +24,7 @@ from PySide6.QtWidgets import (
     QFrame,
 )
 
-from kmeans import get_colors_from_image
+from kmeans import iegut_krasas_no_attela
 from webPageSetup import PageSetupWidget
 
 
@@ -135,7 +135,7 @@ class MainWindow(QMainWindow):
         wid = QWidget()
         wid.setLayout(second)
 
-        self.poga_atpakal.clicked.connect(self.next_page)
+        self.poga_atpakal.clicked.connect(self.nakama_lapa)
 
         scroll_area = QScrollArea()
         scroll_area.setWidgetResizable(True)
@@ -185,9 +185,9 @@ class MainWindow(QMainWindow):
         vbox2.setAlignment(Qt.AlignHCenter)
 
         self.poga_saglabat = QPushButton("Saglabāt izvēli")
-        self.poga_saglabat.setEnabled(True)
+        self.poga_saglabat.setEnabled(False)
         self.poga_nakama_lapa = QPushButton("Nākamais solis")
-        self.poga_nakama_lapa.setEnabled(True)
+        self.poga_nakama_lapa.setEnabled(False)
         footer = QHBoxLayout()
         footer.addWidget(self.poga_saglabat)
         footer.addWidget(self.poga_nakama_lapa)
@@ -207,8 +207,6 @@ class MainWindow(QMainWindow):
         central_widget.setLayout(vbox)
 
         scroll_area.setWidget(central_widget)
-        scroll_area.setFixedWidth(1500)
-        scroll_area.setMinimumHeight(500)
 
         self.stacked_widget.addWidget(scroll_area)
         self.stacked_widget.addWidget(wid)
@@ -219,17 +217,17 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("Automātiska tīmekļa vietņu izstrāde")
         self.show()
 
-        self.kreisa_poga.clicked.connect(self.show_previous_image)
-        self.laba_poga.clicked.connect(self.show_next_image)
+        self.kreisa_poga.clicked.connect(self.paradit_ieprieksejo_attelu)
+        self.laba_poga.clicked.connect(self.paradit_nakamo_attelu)
 
-        self.kreisa_poga1.clicked.connect(self.show_previous_image)
-        self.laba_poga1.clicked.connect(self.show_next_image)
+        self.kreisa_poga1.clicked.connect(self.paradit_ieprieksejo_attelu)
+        self.laba_poga1.clicked.connect(self.paradit_nakamo_attelu)
 
-        self.kreisa_poga2.clicked.connect(self.show_previous_image)
-        self.laba_poga2.clicked.connect(self.show_next_image)
+        self.kreisa_poga2.clicked.connect(self.paradit_ieprieksejo_attelu)
+        self.laba_poga2.clicked.connect(self.paradit_nakamo_attelu)
 
-        self.kreisa_poga3.clicked.connect(self.show_previous_image)
-        self.laba_poga3.clicked.connect(self.show_next_image)
+        self.kreisa_poga3.clicked.connect(self.paradit_ieprieksejo_attelu)
+        self.laba_poga3.clicked.connect(self.paradit_nakamo_attelu)
 
         self.current_image_index = 0
         self.kreisa_poga.setEnabled(False)
@@ -240,41 +238,39 @@ class MainWindow(QMainWindow):
         self.laba_poga2.setEnabled(False)
         self.kreisa_poga3.setEnabled(False)
         self.laba_poga3.setEnabled(False)
-        ievades_forma.teksta_ievade.returnPressed.connect(self.handle_input)
-        ievades_forma.teksta_ievade2.returnPressed.connect(self.handle_input2)
-        ievades_forma.teksta_ievade3.returnPressed.connect(self.handle_input3)
-        ievades_forma.teksta_ievade4.returnPressed.connect(self.handle_input4)
+        ievades_forma.teksta_ievade.returnPressed.connect(self.apstradat_ievadi)
+        ievades_forma.teksta_ievade2.returnPressed.connect(self.apstradat_ievadi2)
+        ievades_forma.teksta_ievade3.returnPressed.connect(self.apstradat_ievadi3)
+        ievades_forma.teksta_ievade4.returnPressed.connect(self.apstradat_ievadi4)
 
-        self.poga_saglabat.clicked.connect(self.save_current_image)
-        self.poga_nakama_lapa.clicked.connect(self.next_page)
-        self.poga_nakama_lapa.clicked.connect(self.handle_color)
+        self.poga_saglabat.clicked.connect(self.saglabat_attelus)
+        self.poga_nakama_lapa.clicked.connect(self.nakama_lapa)
+        self.poga_nakama_lapa.clicked.connect(self.iegut_attela_krasas)
 
-        self.poga_nakama_lapa.setEnabled(False)
-
-    def handle_input(self):
+    def apstradat_ievadi(self):
         text = self.ievades_forma.teksta_ievade.text()
-        self.search_images(text, 1)
+        self.meklet_attelus(text, 1)
 
-    def handle_input2(self):
+    def apstradat_ievadi2(self):
         text = self.ievades_forma.teksta_ievade2.text()
-        self.search_images(text, 2)
+        self.meklet_attelus(text, 2)
 
-    def handle_input3(self):
+    def apstradat_ievadi3(self):
         text = self.ievades_forma.teksta_ievade3.text()
-        self.search_images(text, 3)
+        self.meklet_attelus(text, 3)
 
-    def handle_input4(self):
+    def apstradat_ievadi4(self):
         text = self.ievades_forma.teksta_ievade4.text()
-        self.search_images(text, 4)
+        self.meklet_attelus(text, 4)
 
-    def translate_text(self, text):
+    def iztulkot_tekstu(self, text):
         URL = f"https://api.mymemory.translated.net/get?q={text}&langpair=lv|en"
         response = requests.get(URL)
         translation = response.json()["responseData"]["translatedText"]
         return translation
 
-    def search_images(self, query, attela_forma):
-        query = self.translate_text(query)
+    def meklet_attelus(self, query, attela_forma):
+        query = self.iztulkot_tekstu(query)
         api_key = "34683408-389739146796b837ff785d8e1"
         params = {
             "q": query,
@@ -297,8 +293,8 @@ class MainWindow(QMainWindow):
                     self.images.append(pixmap)
                 self.current_image_index = 0
 
-                self.show_current_image(attela_forma)
-                self.disableAllButtons()
+                self.paradit_attelu(attela_forma)
+                self.izslegt_pogas()
                 if attela_forma == 1:
                     self.kreisa_poga.setEnabled(len(self.images) > 1)
                     self.laba_poga.setEnabled(len(self.images) > 1)
@@ -316,19 +312,19 @@ class MainWindow(QMainWindow):
         else:
             print("API request failed")
 
-    def show_previous_image(self):
+    def paradit_ieprieksejo_attelu(self):
         self.current_image_index -= 1
         if self.current_image_index < 0:
             self.current_image_index = len(self.images) - 1
-        self.show_current_image(self.label)
+        self.paradit_attelu(self.label)
 
-    def show_next_image(self):
+    def paradit_nakamo_attelu(self):
         self.current_image_index += 1
         if self.current_image_index >= len(self.images):
             self.current_image_index = 0
-        self.show_current_image(self.label)
+        self.paradit_attelu(self.label)
 
-    def show_current_image(self, label):
+    def paradit_attelu(self, label):
         pixmap = self.images[self.current_image_index]
 
         if label == 1:
@@ -343,8 +339,9 @@ class MainWindow(QMainWindow):
         elif label == 4:
             self.attela_forma3.setPixmap(pixmap)
             self.label = 4
+            self.poga_saglabat.setEnabled(True)
 
-    def save_current_image(self):
+    def saglabat_attelus(self):
         for file_name in os.listdir("atteli"):
             file_path = os.path.join("atteli", file_name)
             try:
@@ -376,18 +373,18 @@ class MainWindow(QMainWindow):
             pixmap4.save(attela_cels4)
             self.poga_nakama_lapa.setEnabled(True)
 
-    def next_page(self):
+    def nakama_lapa(self):
         current_index = self.stacked_widget.currentIndex()
         next_index = (current_index + 1) % self.stacked_widget.count()
         self.stacked_widget.setCurrentIndex(next_index)
 
-    def handle_color(self):
+    def iegut_attela_krasas(self):
         image = Image.open("atteli/main.png")
-        colors = get_colors_from_image(image, n_colors=5)
+        colors = iegut_krasas_no_attela(image, n_krasas=5)
         selected_text = self.ievades_forma.tipa_izvele.currentIndex()
         self.otra_lapa.handlePageSetup(colors, selected_text)
 
-    def disableAllButtons(self):
+    def izslegt_pogas(self):
         self.kreisa_poga1.setDisabled(True)
         self.laba_poga1.setDisabled(True)
         self.kreisa_poga.setDisabled(True)

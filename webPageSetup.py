@@ -41,7 +41,7 @@ class PageSetupWidget(QWidget):
         atslegvardi_nosaukums.setAlignment(Qt.AlignLeft)
 
         font = QFont()
-        font.setPointSize(24)
+        font.setPointSize(44)
         font.setBold(True)
         font.setFamily("Times new Roman")
 
